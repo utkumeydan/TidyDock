@@ -122,11 +122,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         pause.isEnabled = settings.isEnabled
         menu.addItem(pause)
 
-        if let front = NSWorkspace.shared.frontmostApplication,
-           front.activationPolicy == .regular,
-           let id = front.bundleIdentifier,
-           id != Bundle.main.bundleIdentifier {
-            let never = item(L("Never Quit “%@”", front.localizedName ?? id), #selector(toggleNeverQuit(_:)), symbol: "hand.raised")
+        if let (id, name) = frontApp {
+            let never = item(L("Never Quit “%@”", name), #selector(toggleNeverQuit(_:)), symbol: "hand.raised")
             never.representedObject = id
             never.state = settings.isNeverQuit(bundleID: id) ? .on : .off
             menu.addItem(never)
@@ -145,6 +142,20 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         let quit = item(L("Quit TidyDock"), #selector(quitApp), symbol: "xmark.circle")
         quit.keyEquivalent = "q"
         menu.addItem(quit)
+    }
+
+    /// The Dock app in front, which "Never Quit …" applies to. Screenshots use
+    /// a fixed sample so whatever happens to be open never ends up in them.
+    private var frontApp: (id: String, name: String)? {
+        if ScreenshotMode.scene != nil {
+            return ("com.apple.Notes", AppInfo(bundleID: "com.apple.Notes").name)
+        }
+        guard let front = NSWorkspace.shared.frontmostApplication,
+              front.activationPolicy == .regular,
+              let id = front.bundleIdentifier,
+              id != Bundle.main.bundleIdentifier
+        else { return nil }
+        return (id, front.localizedName ?? id)
     }
 
     private func addRecentlyQuit(to menu: NSMenu) {
