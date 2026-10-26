@@ -2,7 +2,7 @@
 # Builds build/TidyDock.app (and a zip for releases).
 #
 # Environment:
-#   VERSION             marketing version, default 0.1.0
+#   VERSION             marketing version, default 0.1.1
 #   BUILD               build number, default: git commit count
 #   ARCHS               "arm64", "x86_64" or "arm64 x86_64" for a universal app, default: this Mac
 #   SIGN_IDENTITY       codesign identity. Defaults to a "TidyDock Development" certificate
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-0.1.1}"
 BUILD="${BUILD:-$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || echo 1)}"
 ARCHS="${ARCHS:-$(uname -m)}"
 if [[ -z "${SIGN_IDENTITY:-}" ]]; then

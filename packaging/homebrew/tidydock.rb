@@ -1,7 +1,7 @@
 # Copy to github.com/utkumeydan/homebrew-tap as Casks/tidydock.rb.
 # The release workflow prints the version and sha256 for each release.
 cask "tidydock" do
-  version "0.1.0"
+  version "0.1.1"
   sha256 "REPLACE_WITH_SHA256_FROM_RELEASE"
 
   url "https://github.com/utkumeydan/TidyDock/releases/download/v#{version}/TidyDock-#{version}.zip"
