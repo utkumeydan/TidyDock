@@ -1,0 +1,40 @@
+name: Bug report
+description: An app was quit when it shouldn't be, wasn't quit, or something else went wrong.
+labels: [bug]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What happened?
+      options:
+        - An app was quit that shouldn't have been
+        - An app wasn't quit after closing its last window
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Affected app, version and bundle ID
+      description: "Bundle ID: osascript -e 'id of app \"AppName\"'"
+      placeholder: Firefox 140.0, org.mozilla.firefox
+  - type: input
+    id: versions
+    attributes:
+      label: macOS and TidyDock versions
+      placeholder: macOS 27.0.1, TidyDock 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Mention other desktops, full screen, minimized or hidden windows if they were involved.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: "Run `/usr/bin/log stream --predicate 'subsystem == \"io.github.utkumeydan.TidyDock\"' --level info`, reproduce, and paste the output."
+      render: text

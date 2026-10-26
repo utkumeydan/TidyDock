@@ -1,0 +1,25 @@
+name: Website
+
+# Publishes site/ and the images in docs/ to GitHub Pages (the gh-pages branch).
+# keep_files leaves the Sparkle appcast written by the release workflow in place.
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'docs/**', 'scripts/build-site.sh']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/build-site.sh
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_dir: _site
+          keep_files: true

@@ -1,0 +1,99 @@
+name: Release
+
+# Push a tag like v0.1.0 to build, sign and publish a release.
+#
+# Optional repository secrets:
+#   SIGNING_CERT_P12           base64 of a .p12 with your self-signed (or Developer ID) certificate
+#   SIGNING_CERT_PASSWORD      password of that .p12
+#   SIGNING_IDENTITY           certificate name, e.g. "TidyDock Development"
+#   SPARKLE_PUBLIC_KEY         from Sparkle's generate_keys
+#   SPARKLE_PRIVATE_KEY        from `generate_keys -x private.key`
+# Without the signing secrets the app is ad-hoc signed; without the Sparkle
+# secrets automatic updates stay off in that build.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  SPARKLE_VERSION: 2.10.1
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      HAS_CERT: ${{ secrets.SIGNING_CERT_P12 != '' }}
+      HAS_SPARKLE: ${{ secrets.SPARKLE_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from tag
+        run: |
+          echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          echo "BUILD=$(git rev-list --count HEAD)" >> "$GITHUB_ENV"
+
+      - name: Run tests
+        run: ./scripts/test.sh
+
+      - name: Import signing certificate
+        if: env.HAS_CERT == 'true'
+        env:
+          CERT_P12: ${{ secrets.SIGNING_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          # A self-signed certificate must be trusted for code signing before codesign accepts it.
+          security find-certificate -c "${{ secrets.SIGNING_IDENTITY }}" -p "$KEYCHAIN" > "$RUNNER_TEMP/cert.pem"
+          sudo security add-trusted-cert -d -r trustRoot -p codeSign -k /Library/Keychains/System.keychain "$RUNNER_TEMP/cert.pem"
+          echo "SIGN_IDENTITY=${{ secrets.SIGNING_IDENTITY }}" >> "$GITHUB_ENV"
+
+      - name: Build universal app
+        env:
+          ARCHS: arm64 x86_64
+          ZIP: '1'
+          SPARKLE_PUBLIC_KEY: ${{ secrets.SPARKLE_PUBLIC_KEY }}
+        run: ./scripts/build-app.sh
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "build/TidyDock-$VERSION.zip" \
+            --title "TidyDock $VERSION" --generate-notes
+          echo "### Homebrew cask" >> "$GITHUB_STEP_SUMMARY"
+          echo "version \"$VERSION\"" >> "$GITHUB_STEP_SUMMARY"
+          echo "sha256 \"$(shasum -a 256 "build/TidyDock-$VERSION.zip" | cut -d' ' -f1)\"" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Sign update and write appcast
+        if: env.HAS_SPARKLE == 'true'
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz" | tar -xJ -C "$RUNNER_TEMP"
+          ZIP_PATH="build/TidyDock-$VERSION.zip"
+          SIGNATURE="$(echo "$SPARKLE_PRIVATE_KEY" | "$RUNNER_TEMP/bin/sign_update" --ed-key-file - -p "$ZIP_PATH")"
+          LENGTH="$(stat -f%z "$ZIP_PATH")"
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/TidyDock-$VERSION.zip"
+          mkdir -p pages
+          ./scripts/make-appcast.sh "$ZIP_PATH" "$VERSION" "$BUILD" "$URL" "$SIGNATURE" "$LENGTH" > pages/appcast.xml
+
+      - name: Publish appcast to GitHub Pages
+        if: env.HAS_SPARKLE == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_dir: pages
+          keep_files: true
