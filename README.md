@@ -62,13 +62,7 @@ On macOS, closing an app's last window usually leaves the app running in the bac
 
 **Requirements:** macOS 13 Ventura or later.
 
-### Homebrew
-
-```bash
-brew install --cask utkumeydan/tap/tidydock
-```
-
-### Manual download
+### Download
 
 1. Download `TidyDock-x.y.z.zip` from [Releases](https://github.com/utkumeydan/TidyDock/releases) and move `TidyDock.app` to `/Applications`.
 2. Open it. TidyDock is not notarized by Apple yet, so macOS blocks the first launch. Go to **System Settings › Privacy & Security** and click **Open Anyway**.

@@ -62,13 +62,7 @@ macOS'ta bir uygulamanın son penceresini kapatmak çoğu zaman uygulamayı arka
 
 **Gereksinim:** macOS 13 Ventura veya üzeri.
 
-### Homebrew
-
-```bash
-brew install --cask utkumeydan/tap/tidydock
-```
-
-### Elle indirme
+### İndirme
 
 1. [Releases](https://github.com/utkumeydan/TidyDock/releases) sayfasından `TidyDock-x.y.z.zip` dosyasını indirip `TidyDock.app`'i `/Applications` klasörüne taşıyın.
 2. Uygulamayı açın. TidyDock henüz Apple tarafından onaylanmadığı (notarize edilmediği) için macOS ilk açılışı engeller. **Sistem Ayarları › Gizlilik ve Güvenlik** bölümüne gidip **Yine de Aç** düğmesine tıklayın.
