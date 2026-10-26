@@ -109,7 +109,7 @@ The decision logic lives in `Sources/TidyDockCore` and has no AppKit dependency,
 
 ## Contributing
 
-Bug reports, app compatibility reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports, app compatibility reports and pull requests are welcome. Please [open an issue](https://github.com/utkumeydan/TidyDock/issues/new?template=bug_report.yml) for any app TidyDock handles wrongly.
 
 ## License
 

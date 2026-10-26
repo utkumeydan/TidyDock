@@ -100,7 +100,7 @@ Evet. Başka masaüstlerindeki ve tam ekrandaki pencereler pencere sunucusu üze
 
 ## Katkıda bulunma
 
-Hata bildirimleri, uygulama uyumluluk raporları ve pull request'ler memnuniyetle karşılanır. Ayrıntılar [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında.
+Hata bildirimleri, uygulama uyumluluk raporları ve pull request'ler memnuniyetle karşılanır. TidyDock'un yanlış davrandığı bir uygulama için lütfen bir [issue açın](https://github.com/utkumeydan/TidyDock/issues/new?template=bug_report.yml).
 
 ## Lisans
 
