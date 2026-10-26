@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>TidyDock</title>
+    <link>https://github.com/utkumeydan/TidyDock</link>
+    <item>
+      <title>TidyDock 0.1.1</title>
+      <pubDate>Mon, 26 Oct 2026 12:46:23 +0000</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://github.com/utkumeydan/TidyDock/releases/tag/v0.1.1</sparkle:releaseNotesLink>
+      <enclosure url="https://github.com/utkumeydan/TidyDock/releases/download/v0.1.1/TidyDock-0.1.1.zip" length="1785722" type="application/octet-stream" sparkle:edSignature="+ZBnOuDVb2kGQjNoKT01xwqlAQCe/MTGfWqNXNRpUcwVsdHvTYgIN34Qu6QJ5jdbBCR/DL/vVWlaOZDzFKDiAw=="/>
+    </item>
+  </channel>
+</rss>
