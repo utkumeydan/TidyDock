@@ -4,7 +4,7 @@
 # Environment:
 #   VERSION             marketing version, default 0.1.0
 #   BUILD               build number, default: git commit count
-#   ARCHS               "arm64", "x86_64" or "arm64 x86_64" (universal needs Xcode), default: this Mac
+#   ARCHS               "arm64", "x86_64" or "arm64 x86_64" for a universal app, default: this Mac
 #   SIGN_IDENTITY       codesign identity. Defaults to a "TidyDock Development" certificate
 #                       when one is in the keychain, otherwise "-" (ad-hoc). Use the same
 #                       certificate for every build so the Accessibility permission survives updates.
@@ -28,17 +28,21 @@ SPARKLE_PUBLIC_KEY="${SPARKLE_PUBLIC_KEY:-DNupfV9O2stiVg7dqzqvj2K82/szsL5p5DshB/
 OUT="$ROOT/build"
 APP="$OUT/TidyDock.app"
 
-arch_flags=()
-for arch in $ARCHS; do arch_flags+=(--arch "$arch"); done
-
-echo "→ Compiling ($ARCHS)"
-swift build -c release --package-path "$ROOT" "${arch_flags[@]}"
-BIN="$(swift build -c release --package-path "$ROOT" "${arch_flags[@]}" --show-bin-path)"
+# Build each architecture on its own (a multi-arch `swift build` trips over
+# duplicate outputs) and merge the executables with lipo.
+binaries=()
+for arch in $ARCHS; do
+    echo "→ Compiling ($arch)"
+    scratch="$ROOT/.build/$arch"
+    swift build -c release --package-path "$ROOT" --arch "$arch" --scratch-path "$scratch"
+    BIN="$(swift build -c release --package-path "$ROOT" --arch "$arch" --scratch-path "$scratch" --show-bin-path)"
+    binaries+=("$BIN/TidyDock")
+done
 
 echo "→ Assembling $APP"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
-cp "$BIN/TidyDock" "$APP/Contents/MacOS/TidyDock"
+lipo -create "${binaries[@]}" -output "$APP/Contents/MacOS/TidyDock"
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/TidyDock"
 ditto "$BIN/Sparkle.framework" "$APP/Contents/Frameworks/Sparkle.framework"
 cp -R "$ROOT/Support/Localization/"*.lproj "$APP/Contents/Resources/"
