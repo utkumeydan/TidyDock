@@ -6,4 +6,5 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGINS="$(xcode-select -p)/usr/lib/swift/host/plugins/testing"
 extra=()
 [[ -d "$PLUGINS" ]] && extra=(-Xswiftc -plugin-path -Xswiftc "$PLUGINS")
-swift test --package-path "$ROOT" "${extra[@]}" "$@"
+# The ${…+…} form keeps macOS's bash 3.2 happy when the array is empty.
+swift test --package-path "$ROOT" ${extra[@]+"${extra[@]}"} "$@"
