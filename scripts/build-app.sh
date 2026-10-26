@@ -8,7 +8,7 @@
 #   SIGN_IDENTITY       codesign identity. Defaults to a "TidyDock Development" certificate
 #                       when one is in the keychain, otherwise "-" (ad-hoc). Use the same
 #                       certificate for every build so the Accessibility permission survives updates.
-#   SPARKLE_PUBLIC_KEY  EdDSA public key from Sparkle's generate_keys; updates stay off without it
+#   SPARKLE_PUBLIC_KEY  EdDSA public key; defaults to the TidyDock release key
 #   ZIP=1               also write build/TidyDock-<version>.zip
 set -euo pipefail
 
@@ -23,7 +23,7 @@ if [[ -z "${SIGN_IDENTITY:-}" ]]; then
         SIGN_IDENTITY="-"
     fi
 fi
-SPARKLE_PUBLIC_KEY="${SPARKLE_PUBLIC_KEY:-REPLACE_WITH_SPARKLE_PUBLIC_KEY}"
+SPARKLE_PUBLIC_KEY="${SPARKLE_PUBLIC_KEY:-DNupfV9O2stiVg7dqzqvj2K82/szsL5p5DshB/k3AMg=}"
 
 OUT="$ROOT/build"
 APP="$OUT/TidyDock.app"

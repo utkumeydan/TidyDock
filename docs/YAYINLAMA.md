@@ -24,16 +24,15 @@ Her sürüm aynı sertifikayla imzalanırsa kullanıcıların Erişilebilirlik i
    ```
 4. `.p12` dosyasını güvenli bir yerde sakla ve **asla depoya ekleme**.
 
-## 3. Sparkle anahtarlarını oluştur
+## 3. Sparkle anahtarı
+
+Anahtar çifti oluşturuldu. Genel anahtar `scripts/build-app.sh` içinde; özel anahtar Anahtar Zinciri'nde **tidydock** hesabı adıyla saklanıyor. GitHub'ın güncellemeleri imzalayabilmesi için özel anahtarı bir kez gizli değişken olarak eklemen gerekiyor:
 
 ```bash
-mkdir -p /tmp/sparkle
-curl -L https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz | tar -xJ -C /tmp/sparkle
-/tmp/sparkle/bin/generate_keys            # genel anahtarı yazdırır, özel anahtarı Anahtar Zinciri'ne kaydeder
-/tmp/sparkle/bin/generate_keys -x sparkle-private.key
-gh secret set SPARKLE_PUBLIC_KEY --body "<yazdırılan genel anahtar>"
-gh secret set SPARKLE_PRIVATE_KEY < sparkle-private.key
-rm sparkle-private.key
+mkdir -p /tmp/sparkle && curl -sL https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz | tar -xJ -C /tmp/sparkle
+/tmp/sparkle/bin/generate_keys --account tidydock -x /tmp/sparkle-private.key
+gh secret set SPARKLE_PRIVATE_KEY --repo utkumeydan/TidyDock < /tmp/sparkle-private.key
+rm -P /tmp/sparkle-private.key
 ```
 
 Özel anahtar Anahtar Zinciri'nde yedekli kalır. Kaybedersen mevcut kullanıcılara otomatik güncelleme gönderemezsin.
